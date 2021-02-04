@@ -108,5 +108,5 @@ def code_to_names(code):
     names in various languages.
     """
     # late import to save memory when possible
-    import language_data.name_dicts as name_dicts
-    return name_dicts.CODE_TO_NAMES.get(code, {})
+    import language_data.name_data
+    return language_data.name_data.CODE_TO_NAMES.get(code, {})

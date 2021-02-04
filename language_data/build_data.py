@@ -374,15 +374,13 @@ def get_name_languages():
 
 
 def write_python_dict(outfile, name, d):
+    """
+    Write Python code that initializes a given dictionary, with one value on
+    each line.
+    """
     print(f"{name} = {{", file=outfile)
     for key, value in sorted(d.items()):
-        if isinstance(value, dict):
-            print(f"    {key!r}: {{", file=outfile),
-            for key2, value2 in sorted(value.items()):
-                print(f"        {key2!r}: {value2!r},", file=outfile)
-            print("    },", file=outfile)
-        else:
-            print(f"    {key!r}: {value!r},", file=outfile)
+        print(f"    {key!r}: {value!r},", file=outfile)
     print("}", file=outfile)
 
 
@@ -450,10 +448,6 @@ def build_data():
     save_reverse_name_tables('script', script_names_rev)
     save_reverse_name_tables('territory', territory_names_rev)
 
-    with open('name_dicts.py', 'w', encoding='utf-8') as outfile:
-        print(GENERATED_HEADER, file=outfile)
-        write_python_dict(outfile, 'CODE_TO_NAMES', names_fwd)
-
     # Get the list of languages where we have any name data. These are base
     # language codes (without scripts or territories) which contain a name for
     # themselves.
@@ -471,10 +465,12 @@ def build_data():
         if lang1 == lang2
     ]
 
-    # Write the contents of data_dicts.py.
-    with open('data_dicts.py', 'w', encoding='utf-8') as outfile:
+    # Write the contents of name_data.py.
+    with open('name_data.py', 'w', encoding='utf-8') as outfile:
         print(GENERATED_HEADER, file=outfile)
         write_python_set(outfile, 'LANGUAGES_WITH_NAME_DATA', name_languages)
+        print(file=outfile)
+        write_python_dict(outfile, 'CODE_TO_NAMES', names_fwd)
 
 
 if __name__ == '__main__':
