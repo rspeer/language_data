@@ -374,6 +374,8 @@ def get_name_languages():
 
 
 def get_population_data():
+    import langcodes
+
     filename = data_filename("supplementalData.xml")
     root = ET.fromstring(open(filename).read())
     territories = root.findall("./territoryInfo/territory")
@@ -400,27 +402,22 @@ def get_population_data():
             l_population = t_population * l_proportion
             l_writing = t_population * l_proportion * writing_prop
 
-            # Add up data for different scripts when the script is unspecified
-            if '-' in l_code:
-                codes = [l_code, l_code.split('-')[0]]
-            else:
-                codes = [l_code]
-            
-            # Do this for the bare language code, and optionally for the language+script
-            for ls_code in codes:
-                if '-' in ls_code:
-                    # When the script is specified, use the writing population only,
-                    # as 'script' doesn't apply to spoken language
-                    add_population = l_writing
-                else:
-                    add_population = l_population
-                
-                full_code = f"{ls_code}-{t_code}"
-                language_population[ls_code] += int(round(add_population))
-                language_population[full_code] += int(round(add_population))
+            # Distinguish data in different territories, and also in different
+            # scripts when necessary, while also accumulating more general data
+            language = langcodes.get(f"{l_code}-{t_code}")
+            spoken_lt = language._filter_attributes(['language', 'territory'])
+            spoken_l = language._filter_attributes(['language'])
 
-                language_writing_population[ls_code] += int(round(l_writing))
-                language_writing_population[full_code] += int(round(l_writing))
+            written_lst = language.assume_script()
+            written_lt = written_lst._filter_attributes(['language', 'territory'])
+            written_ls = written_lst._filter_attributes(['language', 'script'])
+            written_l = written_lst._filter_attributes(['language'])
+
+            for lang in set([spoken_lt, spoken_l]):
+                language_population[str(lang)] += int(round(l_population))
+            
+            for lang in set([written_lst, written_lt, written_ls, written_l]):
+                language_writing_population[str(lang)] += int(round(l_writing))
 
     return language_population, language_writing_population
 
