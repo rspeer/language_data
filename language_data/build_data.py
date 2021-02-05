@@ -404,13 +404,18 @@ def get_population_data():
 
             # Distinguish data in different territories, and also in different
             # scripts when necessary, while also accumulating more general data
-            language = langcodes.get(f"{l_code}-{t_code}")
-            spoken_lt = language._filter_attributes(['language', 'territory'])
-            spoken_l = language._filter_attributes(['language'])
 
-            written_lst = language.assume_script()
+            # We need to use maximize() on the bare language code, not just
+            # assume_script(), because assumed defaults like 'zh-Hans' are unwritten
+            # in the data. We need this if we want to count the relative use of
+            # Simplified vs. Traditional Chinese, for example.
+            written_ls = langcodes.get(l_code).maximize()._filter_attributes(['language', 'script'])
+            written_lst = written_ls.update_dict({'territory': t_code})
+
+            spoken_lt = written_lst._filter_attributes(['language', 'territory'])
+            spoken_l = written_lst._filter_attributes(['language'])
+
             written_lt = written_lst._filter_attributes(['language', 'territory'])
-            written_ls = written_lst._filter_attributes(['language', 'script'])
             written_l = written_lst._filter_attributes(['language'])
 
             for lang in set([spoken_lt, spoken_l]):
