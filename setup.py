@@ -19,7 +19,7 @@ read on GitHub: https://github.com/LuminosoInsight/language_data
 
 setup(
     name="language_data",
-    version='1.0',
+    version='1.1',
     maintainer='Robyn Speer',
     maintainer_email='rspeer@arborelia.net',
     license="MIT",
