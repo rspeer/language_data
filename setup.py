@@ -19,9 +19,9 @@ read on GitHub: https://github.com/LuminosoInsight/language_data
 
 setup(
     name="language_data",
-    version='0.1',
+    version='1.0',
     maintainer='Robyn Speer',
-    maintainer_email='rspeer@luminoso.com',
+    maintainer_email='rspeer@arborelia.net',
     license="MIT",
     url='http://github.com/LuminosoInsight/language_data',
     platforms=["any"],

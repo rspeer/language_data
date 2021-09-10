@@ -16,7 +16,7 @@ The data included in this package is:
 - The estimated population that speaks each language
 - The estimated population that writes each language
 
-These are all extracted from the Unicode [CLDR][] data package, version 38.1, plus a few additional language names that fill in gaps in CLDR.
+These are all extracted from the Unicode [CLDR][] data package, version 40, plus a few additional language names that fill in gaps in CLDR.
 
 [cldr]: http://cldr.unicode.org/
 
@@ -26,7 +26,7 @@ These are all extracted from the Unicode [CLDR][] data package, version 38.1, pl
 
 - The writing systems of Chinese erase most (but not all) of the distinctions between spoken Chinese languages. You'll see separate estimates of the writing population for Cantonese, Mandarin, Wu, and so on, even though you'll likely consider these all to be `zh` when written.
 
-- CLDR doesn't have language population data for sign languages.
+- CLDR doesn't have language population data for sign languages. Sign languages end up with a `speaking_population()` and `writing_population()` of 0, and I suppose that is literally true, but there's no data from which we could provide a `signing_population()` method.
 
 [overestimates]: https://unicode-org.github.io/cldr-staging/charts/38.1/supplemental/territory_language_information.html
 

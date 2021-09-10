@@ -149,7 +149,15 @@ OVERRIDES = {
     # Friulian here -- is "lld". The given code of "lad" seems to be an error,
     # pointing to the Judeo-Spanish language Ladino, which would be less likely
     # to be what you mean when speaking Friulian.
-    ("fur", "lad"): None
+    ("fur", "lad"): None,
+
+    # The Amharic data in v39 appears to have switched the words for 'Western'
+    # and 'Eastern'.
+    ("am", "011"): "ምዕራባዊ አፍሪካ",  # Western Africa
+    ("am", "014"): "ምስራቃዊ አፍሪካ",  # Eastern Africa
+
+    ("am", "155"): "ምዕራባዊ አውሮፓ",  # Western Europe
+    ("am", "151"): "ምስራቃዊ አውሮፓ",  # Eastern Europe
 }
 
 
@@ -208,7 +216,7 @@ def read_cldr_names(language, category):
     """
     Read CLDR's names for things in a particular language.
     """
-    filename = data_filename('cldr-localenames-full/main/{}/{}.json'.format(language, category))
+    filename = data_filename('cldr-json/cldr-json/cldr-localenames-full/main/{}/{}.json'.format(language, category))
     fulldata = json.load(open(filename, encoding='utf-8'))
     data = fulldata['main'][language]['localeDisplayNames'][category]
     return data
@@ -362,7 +370,7 @@ def save_reverse_name_tables(category, rev_dict):
         )
 
 def get_name_languages():
-    cldr_main_path = Path(data_filename("cldr-localenames-full/main"))
+    cldr_main_path = Path(data_filename("cldr-json/cldr-json/cldr-localenames-full/main"))
     languages = [
         subpath.name for subpath in sorted(cldr_main_path.iterdir())
         if subpath.name != 'root' and (subpath / 'languages.json').exists()
