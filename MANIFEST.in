@@ -1,0 +1,4 @@
+graft language_data/data
+prune language_data/data/cldr
+prune language_data/data/cldr-json
+include README.md
