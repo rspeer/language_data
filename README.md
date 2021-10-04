@@ -32,4 +32,15 @@ These are all extracted from the Unicode [CLDR][] data package, version 38.1, pl
 
 ## Dependencies
 
-`language_data` has a dependency on the `marisa-trie-m` package so that it can load a compact, efficient data structure for looking up language names.
+`language_data` has a dependency on the `marisa-trie` package so that it can load a compact, efficient data structure for looking up language names.
+
+## Changelog
+
+### Version 1.0.1
+
+* Changed dependency from the fork `marisa-trie-m` to the original `marisa-trie`, which is now more up to date
+* Copied the `nb` name data to `no` so that Norwegian data is available under both names. CLDR (and therefore langcodes) changed their mind on which one was the normalized language code.
+
+### Version 1.0
+
+Original release that factored out `language_data` from `langcodes`.
