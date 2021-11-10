@@ -16,7 +16,7 @@ The data included in this package is:
 - The estimated population that speaks each language
 - The estimated population that writes each language
 
-These are all extracted from the Unicode [CLDR][] data package, version 38.1, plus a few additional language names that fill in gaps in CLDR.
+These are all extracted from the Unicode [CLDR][] data package, version 40, plus a few additional language names that fill in gaps in CLDR.
 
 [cldr]: http://cldr.unicode.org/
 
@@ -26,7 +26,7 @@ These are all extracted from the Unicode [CLDR][] data package, version 38.1, pl
 
 - The writing systems of Chinese erase most (but not all) of the distinctions between spoken Chinese languages. You'll see separate estimates of the writing population for Cantonese, Mandarin, Wu, and so on, even though you'll likely consider these all to be `zh` when written.
 
-- CLDR doesn't have language population data for sign languages.
+- CLDR doesn't have language population data for sign languages. Sign languages end up with a `speaking_population()` and `writing_population()` of 0, and I suppose that is literally true, but there's no data from which we could provide a `signing_population()` method.
 
 [overestimates]: https://unicode-org.github.io/cldr-staging/charts/38.1/supplemental/territory_language_information.html
 
@@ -34,13 +34,8 @@ These are all extracted from the Unicode [CLDR][] data package, version 38.1, pl
 
 `language_data` has a dependency on the `marisa-trie` package so that it can load a compact, efficient data structure for looking up language names.
 
-## Changelog
+## Installation
 
-### Version 1.0.1
+`language_data` is usually installed as a dependency of `langcodes`, and doesn't make much sense without it. You can `pip install language_data` anyway if you want.
 
-* Changed dependency from the fork `marisa-trie-m` to the original `marisa-trie`, which is now more up to date
-* Copied the `nb` name data to `no` so that Norwegian data is available under both names. CLDR (and therefore langcodes) changed their mind on which one was the normalized language code.
-
-### Version 1.0
-
-Original release that factored out `language_data` from `langcodes`.
+To install the `language_data` package in editable mode, run `poetry install` in the package root. (This is the equivalent of `pip install -e .`, which currently doesn't work because pip does not yet fully support PEP 621.)

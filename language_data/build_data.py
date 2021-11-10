@@ -1,14 +1,12 @@
 import marisa_trie
 import json
 import xml.etree.ElementTree as ET
-import sys
 import os
 from pathlib import Path
 from collections import defaultdict, Counter
 
 from language_data.names import normalize_name
 from language_data.util import data_filename
-from language_data.language_lists import CLDR_LANGUAGES
 from language_data.registry_parser import parse_registry
 
 # Naming things is hard, especially languages
@@ -61,57 +59,46 @@ AMBIGUOUS_PREFERENCES = {
     # this seems to be poorly disambiguated in many languages, but we can't
     # do much with a code for the general region of Micronesia
     'FM': {'057'},
-
     # Prefer the country of South Africa over the general region of southern
     # Africa, in languages that don't distinguish them
     'ZA': {'018'},
-
     # Prefer territory 003 for 'North America', which includes Central America
     # and the Caribbean, over territory 021, which excludes them
     '003': {'021'},
-
     # Prefer territory 005 for 'Lulli-Amerihkká' (South America), over territory
     # 419, which includes Central America
     '005': {'419'},
-
     # If a name like "Amerika" is ambiguous between the Americas and the United
     # States of America, choose the Americas
     '019': {'US'},
-
     # Prefer 'Swiss German' to be a specific language
     'gsw': {'de-CH'},
-
     # Of the two countries named 'Congo', prefer the one with Kinshasa
     'CD': {'CG'},
-
     # Prefer Han script to not include bopomofo
     'Hani': {'Hanb'},
-
     # Prefer the specific language Tagalog over standard Filipino, because
     # the ambiguous name was probably some form of 'Tagalog'
     'tl': {'fil'},
-
     # Confusion between Ilokano and Hiligaynon
     'ilo': {'hil'},
-
     # Prefer Central Atlas Tamazight over Standard Moroccan Tamazight
     'tzm': {'zgh'},
-
     # Prefer the specific definition of Low Saxon
     'nds-NL': {'nds'},
-
     # Prefer the specific definition of Mandarin Chinese
     'cmn': {'zh'},
-
     # Prefer the territorially-specific definition of Dari
     'fa-AF': {'prs', 'fa', 'gbz'},
-
     # Ambiguity in the scope of Korean script (whether to include Han characters)
     'Kore': {'Hang'},
-
     # This ambiguity is kind of our fault, for adding an autonym for 'zsm'.
     # "Bahasa Malaysia" should still resolve to the more expected 'ms'.
     'ms': {'zsm'},
+    # I think that the CLDR data for Mazanderani confuses Latvia and Lithuania,
+    # and Wikipedia tells me it means Latvia. I should make this a CLDR issue
+    'lv': {'lt'},
+    'LV': {'LT'},
 }
 
 OVERRIDES = {
@@ -120,36 +107,34 @@ OVERRIDES = {
     # things that's not as standardized as it sounds, but let's at least agree
     # with Wiktionary and avoid a name conflict.
     ("gd", "br"): "Breatannais",
-
     # 'tagaloga' should be 'tl', not 'fil'
     ("eu", "tl"): "Tagaloga",
     ("eu", "fil"): "Filipinera",
-
     # 'Dakota' should be 'dak', not 'dar', which is "Dargwa"
     ("af", "dar"): "Dargwa",
     ("af-NA", "dar"): "Dargwa",
-
     # 'интерлингве' should be 'ie', not 'ia', which is 'интерлингва'
     ("az-Cyrl", "ia"): "интерлингва",
-
     # Don't confuse Samaritan Hebrew with Samaritan Aramaic
     ("en", "smp"): "Samaritan Hebrew",
-
     # Don't confuse the Mongol language of New Guinea with Mongolian
     ("en", "mgt"): "Mongol (New Guinea)",
-
     # Don't confuse Romang with Romani over the name 'Roma'
     ("en", "rmm"): "Romang",
-
     # 'Tai' is a large language family, and it should not refer exclusively and
     # unrelatedly to a language spoken by 900 people in New Guinea
     ("en", "taw"): "Kalam-Tai",
-
     # The code for Ladin -- the language that's almost certainly being named in
     # Friulian here -- is "lld". The given code of "lad" seems to be an error,
     # pointing to the Judeo-Spanish language Ladino, which would be less likely
     # to be what you mean when speaking Friulian.
-    ("fur", "lad"): None
+    ("fur", "lad"): None,
+    # The Amharic data in v39 appears to have switched the words for 'Western'
+    # and 'Eastern'.
+    ("am", "011"): "ምዕራባዊ አፍሪካ",  # Western Africa
+    ("am", "014"): "ምስራቃዊ አፍሪካ",  # Eastern Africa
+    ("am", "155"): "ምዕራባዊ አውሮፓ",  # Western Europe
+    ("am", "151"): "ምስራቃዊ አውሮፓ",  # Eastern Europe
 }
 
 
@@ -208,7 +193,9 @@ def read_cldr_names(language, category):
     """
     Read CLDR's names for things in a particular language.
     """
-    filename = data_filename('cldr-localenames-full/main/{}/{}.json'.format(language, category))
+    filename = data_filename(
+        'cldr-json/cldr-json/cldr-localenames-full/main/{}/{}.json'.format(language, category)
+    )
     fulldata = json.load(open(filename, encoding='utf-8'))
     data = fulldata['main'][language]['localeDisplayNames'][category]
     return data
@@ -228,13 +215,6 @@ def read_cldr_name_file(langcode, category):
             # an inattentive annotator just left there
             continue
 
-        # CLDR assigns multiple names to one code by adding -alt-* to
-        # the end of the code. For example, the English name of 'az' is
-        # Azerbaijani, but the English name of 'az-alt-short' is Azeri.
-        if normalize_name(name) == normalize_name(subtag):
-            # Giving the name "zh (Hans)" to "zh-Hans" is still lazy
-            continue
-
         priority = 3
         if subtag.endswith('-alt-menu') and name == 'mandarin':
             # The -alt-menu entries are supposed to do things like alphabetize
@@ -242,9 +222,17 @@ def read_cldr_name_file(langcode, category):
             # just put the string "mandarin" there, which seems wrong and
             # messes up our name lookups.
             continue
+
+        # CLDR assigns multiple names to one code by adding -alt-* to
+        # the end of the code. For example, the English name of 'az' is
+        # Azerbaijani, but the English name of 'az-alt-short' is Azeri.
         if '-alt-' in subtag:
             subtag, _ = subtag.split('-alt-', 1)
             priority = 1
+
+        if normalize_name(name) == normalize_name(subtag):
+            # Giving the name "zh (Hans)" to "zh-Hans" is still lazy
+            continue
 
         name_quads.append((langcode, subtag, name, priority))
     return name_quads
@@ -269,23 +257,11 @@ def read_iana_registry_names():
             if 'Deprecated' in entry:
                 priority = 0
             if ('en', subtag) in OVERRIDES:
-                target.append(
-                    ('en', subtag, OVERRIDES['en', subtag], priority)
-                )
+                target.append(('en', subtag, OVERRIDES['en', subtag], priority))
             else:
                 for desc in entry['Description']:
-                    target.append(
-                        ('en', subtag, desc, priority)
-                    )
+                    target.append(('en', subtag, desc, priority))
     return language_quads, script_quads, territory_quads
-
-
-def read_iana_registry_scripts():
-    scripts = {}
-    for entry in parse_registry():
-        if entry['Type'] == 'language' and 'Suppress-Script' in entry:
-            scripts[entry['Subtag']] = entry['Suppress-Script']
-    return scripts
 
 
 def read_iana_registry_macrolanguages():
@@ -339,7 +315,9 @@ def update_names(names_fwd, names_rev, name_quads):
         rev_all = names_rev.setdefault('und', {})
         rev_language = names_rev.setdefault(short_language, {})
         for rev_dict in (rev_all, rev_language):
-            rev_dict.setdefault(normalize_name(name), []).append((name_language, referent, priority))
+            rev_dict.setdefault(normalize_name(name), []).append(
+                (name_language, referent, priority)
+            )
 
         names_for_referent = names_fwd.setdefault(referent, {})
         if name_language not in names_for_referent:
@@ -358,19 +336,18 @@ def save_reverse_name_tables(category, rev_dict):
         os.makedirs(data_filename(f"trie/{language}"), exist_ok=True)
         save_trie(
             resolve_names(lang_dict, debug=True),
-            data_filename(f"trie/{language}/name_to_{category}.marisa")
+            data_filename(f"trie/{language}/name_to_{category}.marisa"),
         )
 
+
 def get_name_languages():
-    cldr_main_path = Path(data_filename("cldr-localenames-full/main"))
+    cldr_main_path = Path(data_filename("cldr-json/cldr-json/cldr-localenames-full/main"))
     languages = [
-        subpath.name for subpath in sorted(cldr_main_path.iterdir())
+        subpath.name
+        for subpath in sorted(cldr_main_path.iterdir())
         if subpath.name != 'root' and (subpath / 'languages.json').exists()
     ]
-    return [
-        language for language in languages
-        if 'a' <= language[-1] <= 'z'
-    ]
+    return [language for language in languages if 'a' <= language[-1] <= 'z']
 
 
 def get_population_data():
@@ -398,7 +375,7 @@ def get_population_data():
                 writing_prop = float(attrs['literacyPercent']) / 100
             else:
                 writing_prop = t_literacy_rate
-        
+
             l_population = t_population * l_proportion
             l_writing = t_population * l_proportion * writing_prop
 
@@ -409,7 +386,9 @@ def get_population_data():
             # assume_script(), because assumed defaults like 'zh-Hans' are unwritten
             # in the data. We need this if we want to count the relative use of
             # Simplified vs. Traditional Chinese, for example.
-            written_ls = langcodes.get(l_code).maximize()._filter_attributes(['language', 'script'])
+            written_ls = (
+                langcodes.get(l_code).maximize()._filter_attributes(['language', 'script'])
+            )
             written_lst = written_ls.update_dict({'territory': t_code})
 
             spoken_lt = written_lst._filter_attributes(['language', 'territory'])
@@ -420,7 +399,7 @@ def get_population_data():
 
             for lang in set([spoken_lt, spoken_l]):
                 language_population[str(lang)] += int(round(l_population))
-            
+
             for lang in set([written_lst, written_lt, written_ls, written_l]):
                 language_writing_population[str(lang)] += int(round(l_writing))
 
@@ -449,8 +428,6 @@ GENERATED_HEADER = "# This file is generated by build_data.py."
 
 
 def build_data():
-    lang_scripts = read_iana_registry_scripts()
-
     language_names_rev = {}
     territory_names_rev = {}
     script_names_rev = {}
@@ -488,18 +465,14 @@ def build_data():
     # language codes (without scripts or territories) which contain a name for
     # themselves.
     name_languages = [
-        langcode for langcode in get_name_languages()
-        if '-' not in langcode
-        and langcode in names_fwd
-        and langcode in names_fwd[langcode]
+        langcode
+        for langcode in get_name_languages()
+        if '-' not in langcode and langcode in names_fwd and langcode in names_fwd[langcode]
     ]
 
     # Add the languages that have autonyms in extra_language_data, perhaps because
     # we specifically put them there to get their autonyms right
-    name_languages += [
-        lang1 for (lang1, lang2, _, _) in extra_language_data
-        if lang1 == lang2
-    ]
+    name_languages += [lang1 for (lang1, lang2, _, _) in extra_language_data if lang1 == lang2]
 
     # Write the contents of name_data.py.
     with open('name_data.py', 'w', encoding='utf-8') as outfile:

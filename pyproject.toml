@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "language_data"
+version = "1.1"
+description = "Supplementary data about languages used by the langcodes module"
+authors = ["Elia Robyn Speer <rspeer@arborelia.net>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">= 3.6"
+marisa-trie = "^0.7.7"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
