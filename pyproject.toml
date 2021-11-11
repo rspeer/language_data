@@ -4,6 +4,10 @@ version = "1.1"
 description = "Supplementary data about languages used by the langcodes module"
 authors = ["Elia Robyn Speer <rspeer@arborelia.net>"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/rspeer/language_data"
+include = ["language_data/data", "CHANGELOG.md"]
+exclude = ["language_data/data/cldr", "language_data/data/cldr-json"]
 
 [tool.poetry.dependencies]
 python = ">= 3.6"

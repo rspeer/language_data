@@ -4,7 +4,9 @@
 
 This package is not meant to be used on its own. Please see [langcodes][] for documentation.
 
-The purpose of the `language_data` package is to include bulky data that isn't needed for some use cases of langcodes, so that `langcodes` itself can operate without this data or its dependencies.
+`language_data` is a supplement to the langcodes module, for working with standardized codes for human languages. It stores the more bulky and hard-to-index data about languages, particularly what they are named in various languages.
+
+For example, this stores the data that tell you that the code "en" means "English" in English, or that "francés" is the Spanish (es) name for French (fr).
 
 The functions and test cases for working with this data are in [langcodes][], because working with the data correctly requires parsing language codes.
 
@@ -38,4 +40,4 @@ These are all extracted from the Unicode [CLDR][] data package, version 40, plus
 
 `language_data` is usually installed as a dependency of `langcodes`, and doesn't make much sense without it. You can `pip install language_data` anyway if you want.
 
-To install the `language_data` package in editable mode, run `poetry install` in the package root. (This is the equivalent of `pip install -e .`, which currently doesn't work because pip does not yet fully support PEP 621.)
+To install the `language_data` package in editable mode, run `poetry install` in the package root. (This is the equivalent of `pip install -e .`, which will hopefully become compatible again soon via PEP 660.)
