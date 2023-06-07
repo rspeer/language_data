@@ -18,7 +18,7 @@ The data included in this package is:
 - The estimated population that speaks each language
 - The estimated population that writes each language
 
-These are all extracted from the Unicode [CLDR][] data package, version 40, plus a few additional language names that fill in gaps in CLDR.
+These are all extracted from the Unicode [CLDR][] data package, version 43, plus a few additional language names that fill in gaps in CLDR.
 
 [cldr]: http://cldr.unicode.org/
 
