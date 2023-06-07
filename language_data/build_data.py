@@ -440,11 +440,17 @@ def build_data():
         language_data = read_cldr_name_file(langcode, 'languages')
         update_names(names_fwd, language_names_rev, language_data)
 
-        script_data = read_cldr_name_file(langcode, 'scripts')
-        update_names(names_fwd, script_names_rev, script_data)
+        try:
+            script_data = read_cldr_name_file(langcode, 'scripts')
+            update_names(names_fwd, script_names_rev, script_data)
+        except FileNotFoundError:
+            pass
 
-        territory_data = read_cldr_name_file(langcode, 'territories')
-        update_names(names_fwd, territory_names_rev, territory_data)
+        try:
+            territory_data = read_cldr_name_file(langcode, 'territories')
+            update_names(names_fwd, territory_names_rev, territory_data)
+        except FileNotFoundError:
+            pass
 
     iana_languages, iana_scripts, iana_territories = read_iana_registry_names()
     update_names(names_fwd, language_names_rev, iana_languages)

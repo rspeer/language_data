@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "language_data"
-version = "1.1"
+version = "1.2"
 description = "Supplementary data about languages used by the langcodes module"
 authors = ["Elia Robyn Speer <rspeer@arborelia.net>"]
 license = "MIT"

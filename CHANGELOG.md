@@ -1,3 +1,7 @@
+# Version 1.2 (2023-??-??)
+
+- Updated to CLDR v43.
+
 # Version 1.1 (2021-??-??)
 
 - Updated to CLDR v40.
