@@ -10,8 +10,8 @@ include = ["language_data/data", "CHANGELOG.md"]
 exclude = ["language_data/data/cldr", "language_data/data/cldr-json"]
 
 [tool.poetry.dependencies]
-python = ">= 3.6"
-marisa-trie = "^0.7.7"
+python = ">= 3.7"
+marisa-trie = ">=1.1.0"
 
 [tool.poetry.dev-dependencies]
 
