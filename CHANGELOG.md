@@ -1,3 +1,9 @@
+# Version 2.0 (2024-??-??)
+
+- Update `marisa-trie` for compatibility with Python 3.11+
+    - **This update changes the minimum compatible Python version of this package to Python 3.7**
+- Replace usage of `pkg_resources.resource_filename` with `importlib_resources.files` as `pkg_resources` has been deprecated.
+
 # Version 1.1 (2021-??-??)
 
 - Updated to CLDR v40.
